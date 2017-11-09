@@ -44,22 +44,22 @@ class StatThread(threading.Thread):
         logging.info('send ping')
         client.sendto(b'ping', Config.SSSERVER_ADDR)
         data,addr = client.recvfrom(BUF_SIZE)
-        logging.info('receive', data)
+        logging.info('receive' + str(data))
         client.settimeout(0.6)
         while True:
             # 检查队列
             while command_queue.qsize() > 0:
                 command = queue.pop(command_queue)
                 msg = command.get_command()
-                logging.info('queue command send..', msg)
+                logging.info('queue command send..' + str(msg))
                 client.sendto(msg, Config.SSSERVER_ADDR)
                 data,addr = client.recvfrom(BUF_SIZE)
-                logging.info('queue command receive..', data)
+                logging.info('queue command receive..' + str(data))
             try:
                 data,addr = client.recvfrom(BUF_SIZE)
             except Exception, e:
                 continue
-            logging.info('receive stat..', data)
+            logging.info('receive stat..' + str(data))
             handle_stat(data)
         client.close()
         print 'StatThread exit!'
