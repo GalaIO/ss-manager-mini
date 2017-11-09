@@ -30,8 +30,11 @@ class StatModel:
             return stat_port_map[port]
         return 0
     @staticmethod
-    def get_bandwidths():
-        data = stat_port_map
+    def get_bandwidths_result():
+        data = json.dumps(stat_port_map)
         stat_port_map.clear()
         return data
+    @staticmethod
+    def clear_bandwidths_map():
+        return stat_port_map
 

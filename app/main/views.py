@@ -36,4 +36,4 @@ def remove_port():
 
 @main.route('/stat', methods=['GET'])
 def stat():
-    return make_rest_response(StatModel.get_bandwidths())
+    return make_rest_response(StatModel.get_bandwidths_result())
