@@ -11,6 +11,7 @@ import sys
 from flask import Flask, Blueprint
 from flask.ext.sqlalchemy import SQLAlchemy
 from config import config, root_dir
+import logging
 
 
 # 定义了数据库实例，在随后初始化，传入app上下文
@@ -36,10 +37,10 @@ def BlueprintFactory(importname, url_prefix=None, isRootPath=False):
         raise Exception('please input a correct path, like main or app.main!!')
     if isRootPath:
         url_prefix = None
-        print 'build a root path!'
+        logging.info('build a root path!')
     else:
         url_prefix = '/' + name
-        print 'build a '+url_prefix+' path!'
+        logging.info( 'build a '+url_prefix+' path!')
     return Blueprint(name=name, import_name=importname, url_prefix=url_prefix)
 
 # 延迟创建app， 为了让视图和模型与创建分开
@@ -59,7 +60,7 @@ def create_app(config_name):
             try:
                 __import__('app.' + routes)
             except ImportError, e:
-                print routes + 'is not a module!'
+                logging.info(routes + 'is not a module!')
                 continue
             module = sys.modules['app.' + routes]
             # 循环获取是否是需要的类型，然后动态调用

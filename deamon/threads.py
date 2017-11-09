@@ -8,17 +8,21 @@ import socket
 import json
 import logging
 from command import Command, command_queue, queue
-from handler import stat_port_map, handle_stat
+from app.common.port_manager import stat_port_map, handle_stat
 from config import Config
+
 
 BUF_SIZE = 1024
 
 class CliThread(threading.Thread):
-    def __init__(self):
+    def __init__(self, app):
         self.stop_thread = False
         threading.Thread.__init__(self)
+        self.app = app
 
     def run(self):
+        # 传入app上下文
+        self.app.app_context().push()
         while not self.stop_thread:
             # 从键盘读入
             data = input('>')
@@ -26,6 +30,8 @@ class CliThread(threading.Thread):
                 print 'print map'
                 for key, value in stat_port_map.items():
                     print key, value
+            elif data == 2:
+                handle_stat('stat: {"9000":1346}')
             queue.push(command_queue, Command(8001, '7cd308cc059', Command.ADD_COMMAND))
         print 'CliThread exit!'
 
@@ -33,11 +39,14 @@ class CliThread(threading.Thread):
         self.stop_thread = True
 
 class StatThread(threading.Thread):
-    def __init__(self):
+    def __init__(self, app):
         self.stop_thread = False
         threading.Thread.__init__(self)
+        self.app = app
 
     def run(self):
+        # 传入app上下文
+        self.app.app_context().push()
         logging.info('build socket udp....' + str(Config.SSSERVER_ADDR))
         client = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         logging.info('connection timeout is 0.6s..')

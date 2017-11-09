@@ -53,6 +53,9 @@ class Config:
     SSPORT_INIT = 10000
     SSPORT_SIZE = 1000
 
+    # 多长时间写入6 * 10s 即一分钟
+    SSBACKUP_COUNT = 6
+
     # init_app 可以在创建flask应用时，获取到一些app上下文，同时自定义设置参数，一般就是更新app.config吧
     @staticmethod
     def init_app(app):

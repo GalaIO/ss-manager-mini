@@ -21,7 +21,7 @@ def make_shell_context():
     from app import models
     for obj_name in models.__dict__:
         obj = getattr(models, obj_name)
-        if hasattr(obj, '__bases__') and obj.__bases__[0] is db.Model:
+        if hasattr(obj, '__bases__') and len(obj.__bases__) > 0 and obj.__bases__[0] is db.Model:
             reflec_maps[obj_name] = obj
     reflec_maps['app'] = app
     reflec_maps['db'] = db
@@ -106,14 +106,16 @@ def config():
     file.write(uwsgi_conf)
     file.close()
 
-from deamon.threads import StatThread
+from deamon.threads import StatThread, CliThread
 # 添加默认执行启动服务器的命令
 @manager.command
 def default_server():
+    print 'start at %s:%s' % (Config.ACCESSIPS, Config.PORT)
     app.run(debug=True, host=Config.ACCESSIPS, port=Config.PORT, use_reloader=False)
 
 # 启动主进程
 if __name__ == '__main__':
-    thread = StatThread()
+    thread = StatThread(app)
+    # thread = CliThread(app)
     thread.start()
     manager.run(default_command=default_server.__name__)
