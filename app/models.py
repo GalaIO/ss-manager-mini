@@ -14,20 +14,96 @@ class Port(db.Model):
     password = db.Column(db.String(64), nullable=False)
     name = db.Column(db.String(64), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
+    bandwidth = db.Column(db.Float, nullable=False, default=0)
+    bandwidth_used = db.Column(db.Float, nullable=False, default=0)
     create_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
     @staticmethod
-    def add_port(name, user_id, port, password):
-        p = Port(user_id=user_id, name=name, password=password, port=port)
-        db.session.add(p)
+    def add_port(name, user_id, port, password, bandwidth):
+        CommandModel.add_user(port, password)
+        qu = Port.query.filter(Port.user_id == user_id).first()
+        if qu:
+            qu.name = name
+            qu.port = port
+            qu.password = password
+            qu.bandwidth += bandwidth
+            qu.active = True
+        else:
+            p = Port(user_id=user_id, name=name, password=password, port=port, bandwidth=bandwidth)
+            db.session.add(p)
         db.session.commit()
 
     @staticmethod
+    def update_by_user(name, user_id, password, bandwidth):
+        qu = Port.query.filter(Port.user_id == user_id).first()
+        if qu:
+            qu.name = name
+            qu.password = password
+            qu.bandwidth += bandwidth
+            qu.active = True
+            db.session.commit()
+
+    @staticmethod
+    def query_by_port(port, user_id):
+        ps = Port.query.filter(Port.port==port, Port.user_id == user_id).first()
+        re = []
+        for p in ps:
+            re.append({
+                'id': p.id,
+                'user_id': p.user_id,
+                'port': p.port,
+                'password': p.password,
+                'name': p.name,
+                'active': p.active,
+                'bandwidth': p.bandwidth,
+                'bandwidth_used': p.bandwidth_used,
+                'create_time': p.create_time.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        return re
+    @staticmethod
+    def query_by_port(port):
+        p = Port.query.filter(Port.port==port).first()
+        if p:
+            p = {
+                'id': p.id,
+                'user_id': p.user_id,
+                'port': p.port,
+                'password': p.password,
+                'name': p.name,
+                'active': p.active,
+                'bandwidth': p.bandwidth,
+                'bandwidth_used': p.bandwidth_used,
+                'create_time': p.create_time.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        return p
+
+
+    @staticmethod
+    def lists():
+        ps = Port.query.filter().all()
+        re = []
+        for p in ps:
+            re.append({
+                'id': p.id,
+                'user_id': p.user_id,
+                'port': p.port,
+                'password': p.password,
+                'name': p.name,
+                'active': p.active,
+                'bandwidth': p.bandwidth,
+                'bandwidth_used': p.bandwidth_used,
+                'create_time': p.create_time.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        return re
+
+    @staticmethod
     def remove_port(port):
+        CommandModel.remove_user(port)
         p = Port.query.filter(Port.active==True, Port.port==port).first()
         if p is None:
             return
         p.active = False
+        p.port = -2
         db.session.commit()
 
 class Stat(db.Model):
@@ -43,6 +119,15 @@ class Stat(db.Model):
         for key, value in data_map.items():
             st = Stat(port=key, bw_use=value['bw'], user_id=value['id'])
             db.session.add(st)
+            # 校验用户流量
+            p = Port.query.filter(Port.active == True, Port.port == key, Port.user_id==value['id']).first()
+            if p:
+                p.bandwidth_used += value['bw']
+                # 用户流量超限，删除
+                if p.bandwidth_used >= p.bandwidth:
+                    p.active = False
+                    p.port = -2
+                    CommandModel.remove_user(key)
         db.session.commit()
         data_map.clear()
 

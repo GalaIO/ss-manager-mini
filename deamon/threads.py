@@ -31,7 +31,9 @@ class CliThread(threading.Thread):
                 for key, value in stat_port_map.items():
                     print key, value
             elif data == 2:
-                handle_stat('stat: {"9000":1346}')
+                handle_stat('stat: {"10001":3000000}')
+            elif data == 3:
+                handle_stat('stat: {"10002":3000000}')
             queue.push(command_queue, Command(8001, '7cd308cc059', Command.ADD_COMMAND))
         print 'CliThread exit!'
 
