@@ -1,6 +1,0 @@
-Thu, 09 Nov 2017 21:21:08 __init__.py[line:40] INFO build a root path!
-Thu, 09 Nov 2017 21:21:08 __init__.py[line:63] INFO staticis not a module!
-Thu, 09 Nov 2017 21:21:08 __init__.py[line:63] INFO templatesis not a module!
-Thu, 09 Nov 2017 21:21:08 _internal.py[line:87] INFO  * Running on http://127.0.0.1:8080/ (Press CTRL+C to quit)
-Thu, 09 Nov 2017 21:21:14 _internal.py[line:87] INFO 127.0.0.1 - - [09/Nov/2017 21:21:14] "POST /update-user HTTP/1.1" 200 -
-Thu, 09 Nov 2017 21:21:55 _internal.py[line:87] INFO 127.0.0.1 - - [09/Nov/2017 21:21:55] "GET /query-port HTTP/1.1" 200 -
