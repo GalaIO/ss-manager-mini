@@ -4,7 +4,7 @@ Add database models.
 '''
 from . import db
 from deamon.command import Command, command_queue, queue
-from datetime import datetime
+import datetime
 
 class Port(db.Model):
     __tablename__ = 'port'
@@ -16,7 +16,7 @@ class Port(db.Model):
     active = db.Column(db.Boolean, nullable=False, default=True)
     bandwidth = db.Column(db.Float, nullable=False, default=0)
     bandwidth_used = db.Column(db.Float, nullable=False, default=0)
-    create_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    create_time = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
 
     @staticmethod
     def add_port(name, user_id, port, password, bandwidth):
@@ -112,7 +112,7 @@ class Stat(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     port = db.Column(db.Integer, nullable=False)
     bw_use = db.Column(db.Float, nullable=False)
-    create_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    create_time = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
 
     @staticmethod
     def backup(data_map):
@@ -132,8 +132,44 @@ class Stat(db.Model):
         data_map.clear()
 
     @staticmethod
-    def get_bandwidth_by_port(port):
-        sts = Stat.query.filter(Stat.port==port).all()
+    def get_bandwidth_by_port(port, starttime, endtime):
+        '''
+        某一天 比如2016 10 20
+        starttime=datetime.datetime.strptime('2016-10-20','%Y-%m-%d')
+        delta=datetime.timedelta(days=1)
+        endtime=starttime+delta
+        近七天 比如2016 10 20
+        starttime=datetime.datetime.strptime('2016-10-20','%Y-%m-%d')
+        delta=datetime.timedelta(days=7)
+        endtime=starttime-delta
+        近30天 比如2016 10 20
+        starttime=datetime.datetime.strptime('2016-10-20','%Y-%m-%d')
+        delta=datetime.timedelta(days=30)
+        endtime=starttime-delta
+        近一年 比如2016 10 20
+        starttime=datetime.datetime.strptime('2016-10-20','%Y-%m-%d')
+        delta=datetime.timedelta(days=365)
+        endtime=starttime-delta
+        :param port:
+        :param starttime:
+        :param endtime:
+        :return:
+        '''
+        sts = Stat.query.filter(Stat.port==port, Stat.create_time.between(starttime, endtime)).all()
+        re = []
+        datetime.timedelta
+        for st in sts:
+            re.append({
+                'id': st.id,
+                'user_id': st.user_id,
+                'port': st.port,
+                'bw_use': st.bw_use,
+                'create_time': st.create_time.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        return re
+    @staticmethod
+    def get_bandwidths_result(starttime, endtime):
+        sts = Stat.query.filter(Stat.create_time.between(starttime, endtime)).all()
         re = []
         for st in sts:
             re.append({
@@ -145,18 +181,45 @@ class Stat(db.Model):
             })
         return re
     @staticmethod
-    def get_bandwidths_result():
-        sts = Stat.query.filter().all()
-        re = []
+    def get_bandwidth_by_port_report(port, starttime, endtime, type):
+        if type == 'day':
+            dtype = 'hour'
+            label = range(0, 24)
+        elif type == 'month':
+            dtype = 'day'
+            label = range(1, 31)
+        else:
+            dtype = 'month'
+            label = range(1, 13)
+        sts = db.session.query(db.func.sum(Stat.bw_use), db.extract(dtype, Stat.create_time)).filter(Stat.port==port, Stat.create_time.between(starttime, endtime)).group_by(Stat.port, db.extract(dtype, Stat.create_time)).all()
+        port_list = [0] * len(label)
         for st in sts:
-            re.append({
-                'id': st.id,
-                'user_id': st.user_id,
-                'port': st.port,
-                'bw_use': st.bw_use,
-                'create_time': st.create_time.strftime('%Y-%m-%d %H:%M:%S')
-            })
-        return re
+            port_list[st[1]-1] = st[0]
+        return {
+            "label": label,
+            "data": port_list
+        }
+    @staticmethod
+    def get_bandwidths_result_report(starttime, endtime, type):
+        if type == 'day':
+            dtype = 'hour'
+            label = range(0, 24)
+        elif type == 'month':
+            dtype = 'day'
+            label = range(1, 31)
+        else:
+            dtype = 'month'
+            label = range(1, 13)
+        sts = db.session.query(Stat.port, db.func.sum(Stat.bw_use), db.extract(dtype, Stat.create_time)).filter(Stat.create_time.between(starttime, endtime)).group_by(Stat.port, db.extract(dtype, Stat.create_time)).all()
+        port_list = {}
+        for st in sts:
+            if not port_list.has_key(st[0]):
+                port_list[st[0]] = [0] * len(label)
+            port_list[st[0]][st[2]-1] = st[1]
+        return {
+            "label": label,
+            "data": port_list
+        }
 
 class CommandModel:
     @staticmethod

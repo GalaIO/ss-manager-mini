@@ -11,9 +11,6 @@ from command import Command, command_queue, queue
 from app.common.port_manager import stat_port_map, handle_stat
 from config import Config
 
-
-BUF_SIZE = 1024
-
 class CliThread(threading.Thread):
     def __init__(self, app):
         self.stop_thread = False
@@ -54,9 +51,9 @@ class StatThread(threading.Thread):
         logging.info('connection timeout is 0.6s..')
         logging.info('send ping')
         client.sendto(b'ping', Config.SSSERVER_ADDR)
-        data,addr = client.recvfrom(BUF_SIZE)
+        data,addr = client.recvfrom(Config.SSRECV_BUFF_SIZE)
         logging.info('receive' + str(data))
-        client.settimeout(0.6)
+        client.settimeout(Config.SSRECV_TIMEOUT)
         while True:
             # 检查队列
             while command_queue.qsize() > 0:
@@ -64,10 +61,10 @@ class StatThread(threading.Thread):
                 msg = command.get_command()
                 logging.info('queue command send..' + str(msg))
                 client.sendto(msg, Config.SSSERVER_ADDR)
-                data,addr = client.recvfrom(BUF_SIZE)
+                data,addr = client.recvfrom(Config.SSRECV_BUFF_SIZE)
                 logging.info('queue command receive..' + str(data))
             try:
-                data,addr = client.recvfrom(BUF_SIZE)
+                data,addr = client.recvfrom(Config.SSRECV_BUFF_SIZE)
             except Exception, e:
                 continue
             logging.info('receive stat..' + str(data))

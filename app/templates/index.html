@@ -2,8 +2,135 @@
 <head>
     <meta charset="UTF-8">
     <title>hello</title>
+    <!-- ZUI 标准版压缩后的 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/zui/1.7.0/css/zui.min.css">
+
+    <!-- ZUI Javascript 依赖 jQuery -->
+    <script src="https://cdn.bootcss.com/zui/1.7.0/lib/jquery/jquery.js"></script>
+    <link href="https://cdn.bootcss.com/zui/1.7.0/lib/datetimepicker/datetimepicker.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/zui/1.7.0/lib/datetimepicker/datetimepicker.min.js"></script>
+    <!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/zui/1.7.0/js/zui.min.js"></script>
+    <script src="https://cdn.bootcss.com/zui/1.7.0/lib/chart/zui.chart.min.js"></script>
+    <style>
+        .form-date{
+            width: 100px;
+        }
+        .end-date{
+            width: 100px;
+        }
+    </style>
+    <script type="application/javascript">
+        $(document).ready(function(){
+          // 仅选择日期
+            $(".form-date").datetimepicker(
+            {
+                language:  "zh-CN",
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0,
+                format: "yyyy-mm-dd"
+            });
+          // 仅选择日期
+            $(".end-date").datetimepicker(
+            {
+                language:  "zh-CN",
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0,
+                format: "yyyy-mm-dd"
+            });
+            // 创建指定Canvas的Chart实例
+            var myChart = $("#myChart").chart();
+            $(".query_btn").on('click', function (e) {
+                $.get("/stat-report?starttime=" + $(".form-date").val() + "&endtime=" + $(".end-date").val() + "&type=" + $(e.target).attr("dtype"),function(data,status){
+                    console.info(data)
+                    data = JSON.parse(data);
+                    if (status != "success" || data.code != 200) {
+                        alert("数据: " + data + "\n状态: " + status);
+                        return;
+                    }
+                    con = data.content.data
+                    dsets = []
+                    colors = ["red", "green", "blue", "yellow", "pink"]
+                    index = 0
+                    for(var key in con){
+                        //console.info(key, data[key])
+                        dsets.push({"label": key, "data":con[key], "color": colors[index%colors.length]})
+                        index += 1
+                    }
+                    if (index <= 0) {
+                        alert('no more data!')
+                        return
+                    }
+                   var datasets = {
+                        // labels 数据包含依次在X轴上显示的文本标签
+                        labels: data.content.label,
+                        datasets: dsets
+                    };
+
+                    var options = {}; // 图表配置项，可以留空来使用默认的配置
+
+                    var myLineChart = $("#myChart").lineChart(datasets, options);
+                  });
+            });
+        });
+    </script>
 </head>
+
 <body>
-    <h1>hello world!!</h1>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <!-- 导航头部 -->
+        <div class="navbar-header">
+          <!-- 品牌名称或logo -->
+          <a class="navbar-brand" href="your/nice/url">SS管理系统</a>
+        </div>
+        <!-- 导航项目 -->
+        <div class="collapse navbar-collapse navbar-collapse-example">
+          <!-- 一般导航项目 -->
+          <!--<ul class="nav navbar-nav">-->
+            <!--<li class="active"><a href="your/nice/url">项目</a></li>-->
+            <!--<li><a href="your/nice/url">需求</a></li>-->
+            <!--...-->
+            <!--&lt;!&ndash; 导航中的下拉菜单 &ndash;&gt;-->
+            <!--<li class="dropdown">-->
+              <!--<a href="your/nice/url" class="dropdown-toggle" data-toggle="dropdown">管理 <b class="caret"></b></a>-->
+              <!--<ul class="dropdown-menu" role="menu">-->
+                <!--<li><a href="your/nice/url">任务</a></li>-->
+                <!--...-->
+              <!--</ul>-->
+            <!--</li>-->
+          <!--</ul>-->
+        </div><!-- END .navbar-collapse -->
+      </div>
+
+    </nav>
+    <div class="panel">
+      <div class="panel-heading">
+        查询流量情况
+      </div>
+      <div class="panel-body">
+        <div style="position: relative;">
+            <span style="float: left;">起始日期：</span><input style="float: left;" type="text" class="form-control form-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">
+            <!--终止日期：<input type="text" class="form-control end-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">-->
+            <div class="btn-group" style="float: left;">
+              <button type="button" class="query_btn" dtype="day">近一天</button>
+              <button type="button" class="query_btn" dtype="month">近一个月</button>
+              <button type="button" class="query_btn" dtype="year">近一年</button>
+            </div>
+        </div>
+        <canvas id="myChart" width="1000" height="400"></canvas>
+      </div>
+    </div>
+
 </body>
 </html>

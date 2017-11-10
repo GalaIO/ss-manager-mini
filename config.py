@@ -53,6 +53,11 @@ class Config:
     SSPORT_INIT = 10000
     SSPORT_SIZE = 1000
 
+    # 接受缓存设置
+    SSRECV_BUFF_SIZE = 1024
+    # 接受超时设置 秒单位
+    SSRECV_TIMEOUT = 0.5
+
     # 多长时间写入6 * 10s 即一分钟
     SSBACKUP_COUNT = 6
 

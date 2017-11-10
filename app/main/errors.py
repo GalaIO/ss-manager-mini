@@ -3,6 +3,8 @@
 web error control..
 '''
 from flask import render_template
+
+from app.common.response_util import make_rest_response, Response
 from . import main
 
 # 向程序全局注册404 错误处理，其他路由处理可以省掉，页面未找到
@@ -19,3 +21,8 @@ def internal_server_error(e):
 @main.app_errorhandler(403)
 def internal_server_error(e):
     return render_template('403.html'), 403
+
+# 全局注册异常梳理器
+@main.app_errorhandler(Exception)
+def invalid_usage(error):
+    return make_rest_response(error.message, code=Response.ERR_INTERERR)

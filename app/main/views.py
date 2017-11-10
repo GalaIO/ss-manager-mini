@@ -7,6 +7,7 @@ from . import main
 from ..models import Stat, Port
 from ..common.response_util import make_rest_response, Response
 from ..common import port_manager
+import datetime
 
 # 定义路由函数
 @main.route('/', methods=['GET', 'POST'])
@@ -32,7 +33,7 @@ def update_user():
     password = request.form.get('password')
     user_id = int(request.form.get('user_id', default=-1))
     if user_id>0 and port_manager.hasuserid(user_id):
-        return make_rest_response('you have a port or userid is invalid!', code=Response.ERR_INTERERR)
+        return make_rest_response('the port or userid is invalid!', code=Response.ERR_INTERERR)
     name = request.form.get('name')
     bandwidth = float(request.form.get('bandwidth', default=0))
     if user_id>0 and name and password:
@@ -61,8 +62,184 @@ def query_port_by_port(port):
 
 @main.route('/stat', methods=['GET'])
 def stat():
-    return make_rest_response(Stat.get_bandwidths_result())
+    starttime = request.args.get('starttime')
+    endtime = request.args.get('endtime')
+    type = request.args.get('type')
+    if type == 'delta' :
+        if starttime and endtime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            endtime = datetime.datetime.strptime(endtime, '%Y-%m-%d')
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d) and endtime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'day':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=1)
+            endtime = starttime + delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'week':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=7)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'month':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=30)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'year':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=365)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    else:
+        return make_rest_response('you should send right type!',
+                                  code=Response.ERR_ERRREQUEST)
+
+    return make_rest_response(Stat.get_bandwidths_result(starttime, endtime))
 
 @main.route('/stat/<port>', methods=['GET'])
 def stat_port(port):
-    return make_rest_response(Stat.get_bandwidth_by_port(port))
+    starttime = request.args.get('starttime')
+    endtime = request.args.get('endtime')
+    type = request.args.get('type')
+    if type == 'delta' :
+        if starttime and endtime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            endtime = datetime.datetime.strptime(endtime, '%Y-%m-%d')
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d) and endtime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'day':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=1)
+            endtime = starttime + delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'week':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=7)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'month':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=30)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'year':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=365)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    else:
+        return make_rest_response('you should send right type!',
+                                  code=Response.ERR_ERRREQUEST)
+
+    return make_rest_response(Stat.get_bandwidth_by_port(port, starttime, endtime))
+@main.route('/stat-report', methods=['GET'])
+def stat_report():
+    starttime = request.args.get('starttime')
+    endtime = request.args.get('endtime')
+    type = request.args.get('type')
+    if type == 'day':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=1)
+            endtime = starttime + delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+
+    elif type == 'month':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+
+            starttime += datetime.timedelta(days=1)
+            delta = datetime.timedelta(days=starttime.day-1)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'year':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            endtime = starttime
+            starttime = datetime.datetime.strptime('%s-1-1' % starttime.year, '%Y-%m-%d')
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    else:
+        return make_rest_response('you should send right type!',
+                                  code=Response.ERR_ERRREQUEST)
+
+    return make_rest_response(Stat.get_bandwidths_result_report(starttime, endtime, type))
+
+@main.route('/stat-report/<port>', methods=['GET'])
+def stat_report_port(port):
+
+    starttime = request.args.get('starttime')
+    endtime = request.args.get('endtime')
+    type = request.args.get('type')
+    if type == 'day':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            delta = datetime.timedelta(days=1)
+            endtime = starttime + delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+
+    elif type == 'month':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+
+            starttime += datetime.timedelta(days=1)
+            delta = datetime.timedelta(days=starttime.day-1)
+            endtime = starttime
+            starttime = starttime - delta
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    elif type == 'year':
+        if starttime:
+            starttime = datetime.datetime.strptime(starttime, '%Y-%m-%d')
+            endtime = starttime
+            starttime = datetime.datetime.strptime('%s-1-1' % starttime.year, '%Y-%m-%d')
+        else:
+            return make_rest_response('you should send starttime(%Y-%m-%d)!',
+                                      code=Response.ERR_ERRREQUEST)
+    else:
+        return make_rest_response('you should send right type!',
+                                  code=Response.ERR_ERRREQUEST)
+
+    return make_rest_response(Stat.get_bandwidth_by_port_report(port, starttime, endtime, type))

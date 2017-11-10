@@ -6,6 +6,7 @@ import json
 from config import Config
 from app.models import Stat
 import logging
+from datetime import datetime
 
 port_avaliable_map = {}
 cur_max_port = Config.SSPORT_INIT
@@ -42,10 +43,9 @@ def removeport(port):
 
 
 stat_port_map = {}
-count = 0
+count = datetime.now()
 def handle_stat(data):
     global count
-    count += 1
     info = json.loads(data[5:])
     for key, value in info.items():
         key = int(key)
@@ -59,9 +59,10 @@ def handle_stat(data):
             stat_port_map[key]['id'] = port_avaliable_map[key]
 
     # 每分钟写入
-    if count >= Config.SSBACKUP_COUNT:
+    cur = datetime.now()
+    if (cur-count).seconds >= Config.SSBACKUP_COUNT *10:
         logging.info('stat buffer write in db....')
-        count = 0
+        count = cur
         Stat.backup(stat_port_map)
 
 # test
