@@ -29,7 +29,7 @@ class Port(db.Model):
             qu.bandwidth += bandwidth
             qu.active = True
         else:
-            p = Port(user_id=user_id, name=name, password=password, port=port, bandwidth=bandwidth)
+            p = Port(user_id=user_id, name=name, password=password, port=port, bandwidth=bandwidth, create_time=datetime.datetime.now())
             db.session.add(p)
         db.session.commit()
 
@@ -117,7 +117,7 @@ class Stat(db.Model):
     @staticmethod
     def backup(data_map):
         for key, value in data_map.items():
-            st = Stat(port=key, bw_use=value['bw'], user_id=value['id'])
+            st = Stat(port=key, bw_use=value['bw'], user_id=value['id'], create_time=datetime.datetime.now())
             db.session.add(st)
             # 校验用户流量
             p = Port.query.filter(Port.active == True, Port.port == key, Port.user_id==value['id']).first()
