@@ -128,8 +128,8 @@ def default_server():
 # 启动主进程
 if __name__ == '__main__':
     # 启动后台监控进程
-    # thread = StatThread(app)
-    thread = CliThread(app)
+    thread = StatThread(app)
+    # thread = CliThread(app)
     thread.start()
     # 执行数据初始化工作
     manager.run(default_command=default_server.__name__)
