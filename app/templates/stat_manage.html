@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>流量管理</title>
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+        .form-date{
+            width: 100px;
+        }
+        .end-date{
+            width: 100px;
+        }
+    </style>
+  </head>
+  <body>
+  <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">SS流量管理系统</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li ><a href="/">主页</a></li>
+            <li><a href="/port-manage">用户管理</a></li>
+            <li class="active"><a href="/stat-manage">流量报表</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">某用户 <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">登出</a></li>
+                <!--<li><a href="#">Another action</a></li>-->
+                <!--<li><a href="#">Something else here</a></li>-->
+                <!--<li role="separator" class="divider"></li>-->
+                <!--<li class="dropdown-header">Nav header</li>-->
+                <!--<li><a href="#">Separated link</a></li>-->
+                <!--<li><a href="#">One more separated link</a></li>-->
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    <div class="container">
+        <h2>流量管理</h2>
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            查询流量情况
+          </div>
+          <div class="panel-body">
+            <div style="position: relative;">
+                <div class="row">
+                <div class="col-lg-6">
+                <div class="input-group input-group-lg">
+                  <span class="input-group-addon" id="sizing-addon1">起始日期：</span>
+                  <input style="float: left;" type="text" class="form-control form-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">
+                    <span class="input-group-btn">
+                      <button type="button" class="btn btn-default query_btn" dtype="day">近一天</button>
+                      <button type="button" class="btn btn-default query_btn" dtype="month">近一个月</button>
+                      <button type="button" class="btn btn-default query_btn" dtype="year">近一年</button>
+                  </span>
+                </div>
+                </div>
+                </div>
+                <!--<span style="float: left;">起始日期：</span><input style="float: left;" type="text" class="form-control form-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">-->
+                <!--终止日期：<input type="text" class="form-control end-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">-->
+                <!--<div class="btn-group" role="group" style="float: left;">-->
+                  <!--<button type="button" class="btn btn-default query_btn" dtype="day">近一天</button>-->
+                  <!--<button type="button" class="btn btn-default query_btn" dtype="month">近一个月</button>-->
+                  <!--<button type="button" class="btn btn-default query_btn" dtype="year">近一年</button>-->
+                <!--</div>-->
+            </div>
+            <div id="canvas" style="width: 1000px;height:400px; margin-top: 70px;"></div>
+          </div>
+    </div>
+
+
+      <!-- Site footer -->
+      <footer class="footer">
+        <p>© 2016 Company, Inc.</p>
+      </footer>
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <link href="https://cdn.bootcss.com/zui/1.7.0/lib/datetimepicker/datetimepicker.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/zui/1.7.0/lib/datetimepicker/datetimepicker.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/3.8.5/echarts.min.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script type="application/javascript">
+        $(document).ready(function(){
+          // 仅选择日期
+            $(".form-date").datetimepicker(
+            {
+                language:  "zh-CN",
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0,
+                format: "yyyy-mm-dd"
+            });
+          // 仅选择日期
+            $(".end-date").datetimepicker(
+            {
+                language:  "zh-CN",
+                weekStart: 1,
+                todayBtn:  1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0,
+                format: "yyyy-mm-dd"
+            });
+            // 创建指定Canvas的Chart实例
+            var myChart = echarts.init(document.getElementById('canvas'));
+            $(".query_btn").on('click', function (e) {
+                $.get("/stat-report?starttime=" + $(".form-date").val() + "&endtime=" + $(".end-date").val() + "&type=" + $(e.target).attr("dtype"),function(data,status){
+                    console.info(data)
+                    data = JSON.parse(data);
+                    if (status != "success" || data.code != 200) {
+                        alert("数据: " + data.content + "\n状态: " + status);
+                        return;
+                    }
+                    con = data.content.data
+                    dsets = []
+                    legend = []
+                    index = 0
+                    for(var key in con){
+                        //console.info(key, data[key])
+                        dsets.push({"name": key, "data":con[key], "type": "line"})
+                        legend.push(key)
+                        index += 1
+                    }
+                    if (index <= 0) {
+                        alert('no more data!')
+                        return
+                    }
+
+                    option = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:legend
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        toolbox: {
+                            feature: {
+                                saveAsImage: {}
+                            }
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: data.content.label
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: dsets
+                    };
+
+                    myChart.setOption(option);
+                  });
+            });
+        });
+    </script>
+  </body>
+</html>

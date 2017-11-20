@@ -5,6 +5,8 @@ Add database models.
 from . import db
 from deamon.command import Command, command_queue, queue
 import datetime
+from common import port_manager
+import logging
 
 class Port(db.Model):
     __tablename__ = 'port'
@@ -37,9 +39,12 @@ class Port(db.Model):
     def update_by_user(name, user_id, password, bandwidth):
         qu = Port.query.filter(Port.user_id == user_id).first()
         if qu:
-            qu.name = name
-            qu.password = password
-            qu.bandwidth += bandwidth
+            if name:
+                qu.name = name
+            if password:
+                qu.password = password
+            if bandwidth:
+                qu.bandwidth += bandwidth
             qu.active = True
             db.session.commit()
 
@@ -104,6 +109,23 @@ class Port(db.Model):
             return
         p.active = False
         p.port = -2
+        db.session.commit()
+
+    @staticmethod
+    def reenable_port_all():
+        '''
+        从port表查出所有可用的用户，并重新开启端口
+        :return:
+        '''
+        ports = Port.query.filter(Port.active==True).all()
+        for p in ports:
+            if port_manager.genport(p.user_id, p.port) > 0:
+                CommandModel.add_user(p.port, p.password)
+                logging.info("reenable %d port, with %s user" % (p.port, p.user_id))
+            else:
+                p.active = False
+                logging.error("%s is duplicate port with %d" % (p.user_id, p.port))
+
         db.session.commit()
 
 class Stat(db.Model):

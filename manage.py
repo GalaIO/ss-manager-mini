@@ -7,6 +7,7 @@ import os
 from app import create_app, db
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
+import logging
 
 # 动态创建app实例，然后继续使用
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -106,16 +107,29 @@ def config():
     file.write(uwsgi_conf)
     file.close()
 
+from app.models import Port
+def data_related_initial():
+    '''
+    从port表查出所有可用的用户，并重新开启端口
+    :return:
+    '''
+    logging.info("重新使能有效端口.....")
+    Port.reenable_port_all()
+
 from deamon.threads import StatThread, CliThread
 # 添加默认执行启动服务器的命令
 @manager.command
 def default_server():
     print 'start at %s:%s' % (Config.ACCESSIPS, Config.PORT)
+    logging.info("数据初始化.....")
+    data_related_initial()
     app.run(debug=True, host=Config.ACCESSIPS, port=Config.PORT, use_reloader=False)
 
 # 启动主进程
 if __name__ == '__main__':
-    thread = StatThread(app)
-    # thread = CliThread(app)
+    # 启动后台监控进程
+    # thread = StatThread(app)
+    thread = CliThread(app)
     thread.start()
+    # 执行数据初始化工作
     manager.run(default_command=default_server.__name__)

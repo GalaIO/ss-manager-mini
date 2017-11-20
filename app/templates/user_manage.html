@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>用户管理</title>
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+  <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">SS流量管理系统</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li ><a href="/">主页</a></li>
+            <li class="active"><a href="/port-manage">用户管理</a></li>
+            <li><a href="/stat-manage">流量报表</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">某用户 <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">登出</a></li>
+                <!--<li><a href="#">Another action</a></li>-->
+                <!--<li><a href="#">Something else here</a></li>-->
+                <!--<li role="separator" class="divider"></li>-->
+                <!--<li class="dropdown-header">Nav header</li>-->
+                <!--<li><a href="#">Separated link</a></li>-->
+                <!--<li><a href="#">One more separated link</a></li>-->
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    <div class="container">
+        <h2>用户管理</h2>
+        <div class="panel panel-primary">
+            <div class="panel-heading">添加用户</div>
+              <div class="panel-body">
+                姓名：<input class="form_control form_name" type="text">
+                用户唯一ID：<input class="form_control form_userid" type="text">
+                可用带宽：<input class="form_control form_bandwidth" type="text">
+                <input type="button" class="form_control form_submit btn btn-success" value="添加">
+            </div>
+        </div>
+        <div class="panel panel-success">
+            <div class="panel-heading">增加带宽</div>
+              <div class="panel-body">
+                用户唯一ID：<input class="form_control form_userid_2" type="text">
+                可用带宽：<input class="form_control form_bandwidth_2" type="text">
+                <input type="button" class="form_control form_submit_2 btn btn-info" value="提交">
+            </div>
+        </div>
+
+        <div class="panel panel-info">
+            <div class="panel-heading">用户数据</div>
+              <div class="panel-body">
+                <input type="hidden" class="form-flush-data">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>用户名</th>
+                            <th>用户索引</th>
+                            <th>密码</th>
+                            <th>端口</th>
+                            <th>总带宽</th>
+                            <th>已用带宽</th>
+                            <th>创建时间</th>
+                            <th>是否可用</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-content">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+      <!-- Site footer -->
+      <footer class="footer">
+        <p>© 2016 Company, Inc.</p>
+      </footer>
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+        function deleteTable (sel, callback) {
+          $(sel).on('click', 'span[href]', function(event) {
+            $this = $(this);
+            if(confirm("是否确认删除")) {
+                url = $this.attr("href");
+                $.get(url, function (data, status) {
+                    console.info(data)
+                    data = JSON.parse(data);
+                    if (status == "success" && data.code == 200) {
+                        alert("删除成功！");
+                    } else {
+                        alert("删除失败！" + status == "success" ? data.content : "");
+                    }
+                    callback(data);
+                });
+            }
+          });
+        };
+        //生成随机密码
+        function randomAlphanumeric(charsLength) {
+
+            var length = charsLength;
+
+            var chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+
+            var randomChars = "";
+
+            for(x=0; x<length; x++) {
+                var i = Math.floor(Math.random() * chars.length);
+                randomChars += chars.charAt(i);
+            }
+
+            return randomChars;
+        }
+        $(document).ready(function(){
+
+           //查询用户数据填充表格
+            $(".form-flush-data").on("click", function () {
+
+                $.get("/query-port", function(data,status) {
+                    console.info(data)
+                    data = JSON.parse(data);
+                    if (status != "success" || data.code != 200) {
+                        alert("数据: " + data.content + "\n状态: " + status);
+                        return;
+                    }
+                    var users = data.content;
+                    var tbody = ""
+                    for(var i in users) {
+                        var user = users[i];
+                        tbody += "<tr>"
+                        tbody += "<td>" + user.id + "</td>"
+                        tbody += "<td>" + user.name + "</td>"
+                        tbody += "<td>" + user.user_id + "</td>"
+                        tbody += "<td>" + user.password + "</td>"
+                        tbody += "<td>" + user.port + "</td>"
+                        tbody += "<td>" + user.bandwidth + "</td>"
+                        tbody += "<td>" + user.bandwidth_used + "</td>"
+                        tbody += "<td>" + user.create_time + "</td>"
+                        tbody += "<td>" + user.active + "</td>"
+                        tbody += '<td><span class="label label-danger" href="/remove-port/' + user.port + '">删除</span></td>'
+                        tbody += "</tr>"
+                    }
+                    $(".table-content").html(tbody)
+                    //绑定操作事件
+                    deleteTable(".table-content", function (data) {
+                        $(".form-flush-data").trigger("click");
+                    });
+                });
+            });
+
+
+            //绑定新建用户
+            $(".form_submit").on("click", function () {
+                //pdata = "name=" + $(".form-name").val() + "&password=" + randomAlphanumeric(8) + "&user_id=" + $("form_userid").val() + "&bandwidth=" + $("form_bandwidth").val()
+                $.post("/add-port",
+                    {
+                        "name": $(".form_name").val(),
+                        "password": randomAlphanumeric(8),
+                        "user_id": $(".form_userid").val(),
+                        "bandwidth": $(".form_bandwidth").val()
+                    }
+                    ,function(data,status) {
+                    console.info(data)
+                    data = JSON.parse(data);
+                    if (status != "success" || data.code != 200) {
+                        alert("数据: " + data.content + "\n状态: " + status);
+                        return;
+                    }
+                    $(".form-flush-data").trigger("click");
+                });
+            });
+            //绑定增加带宽
+            $(".form_submit_2").on("click", function () {
+                pdata = "&user_id=" + $(".form_userid_2").val() + "&bandwidth=" + $(".form_bandwidth_2").val()
+                $.post("/update-user", pdata,function(data,status) {
+                    console.info(data)
+                    data = JSON.parse(data);
+                    if (status != "success" || data.code != 200) {
+                        alert("数据: " + data.content + "\n状态: " + status);
+                        return;
+                    }
+                    $(".form-flush-data").trigger("click");
+                });
+            });
+            $(".form-flush-data").trigger("click");
+        });
+    </script>
+  </body>
+</html>
