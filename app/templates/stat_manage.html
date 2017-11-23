@@ -73,16 +73,17 @@
             <div style="position: relative;">
                 <div class="row">
                 <div class="col-lg-6">
-                <div class="input-group input-group-lg">
+                <div class="input-group">
                   <span class="input-group-addon" id="sizing-addon1">起始日期：</span>
                   <input style="float: left;" type="text" class="form-control form-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">
                     <span class="input-group-btn">
                       <button type="button" class="btn btn-default query_btn" dtype="day">近一天</button>
                       <button type="button" class="btn btn-default query_btn" dtype="month">近一个月</button>
                       <button type="button" class="btn btn-default query_btn" dtype="year">近一年</button>
-                  </span>
+                    </span>
                 </div>
                 </div>
+                    <button type="button" class="btn btn-info allofit_btn" dtype="day">改为总量统计</button>
                 </div>
                 <!--<span style="float: left;">起始日期：</span><input style="float: left;" type="text" class="form-control form-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">-->
                 <!--终止日期：<input type="text" class="form-control end-date" placeholder="选择或者输入一个日期：yyyy-MM-dd">-->
@@ -140,8 +141,23 @@
                 forceParse: 0,
                 format: "yyyy-mm-dd"
             });
+
+            //初始默认时间
+            $(".form-date").val(new Date().toLocaleDateString().replace("/", "-").replace("/", "-"));
+
             // 创建指定Canvas的Chart实例
             var myChart = echarts.init(document.getElementById('canvas'));
+            var isFullStat = false;
+            $(".allofit_btn").on('click', function (e) {
+                if (isFullStat) {
+                    $(".allofit_btn").text('改为总量统计');
+                    isFullStat = false;
+                }else {
+                    $(".allofit_btn").text('改为时间段统计');
+                    isFullStat = true;
+                }
+            });
+
             $(".query_btn").on('click', function (e) {
                 $.get("/stat-report?starttime=" + $(".form-date").val() + "&endtime=" + $(".end-date").val() + "&type=" + $(e.target).attr("dtype"),function(data,status){
                     console.info(data)
@@ -156,7 +172,14 @@
                     index = 0
                     for(var key in con){
                         //console.info(key, data[key])
-                        dsets.push({"name": key, "data":con[key], "type": "line"})
+                        if (isFullStat) {
+                            for (var i=1; i< con[key].length; i++){
+                                con[key][i] += con[key][i - 1];
+                            }
+                            dsets.push({"name": key, "data":con[key], "type": "line"})
+                        }else{
+                            dsets.push({"name": key, "data":con[key], "type": "line"})
+                        }
                         legend.push(key)
                         index += 1
                     }
