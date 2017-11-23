@@ -118,3 +118,9 @@ port:10001
 ```json
 {"code":200, "msg":"ok", "content": [{"create_time": "2017-11-09 05:16:53", "bw_use": 83.561, "user_id": -1, "id": 1, "port": 9000}, {"create_time": "2017-11-09 05:16:53", "bw_use": 46.751, "user_id": -1, "id": 2, "port": 9000}, {"create_time": "2017-11-09 05:16:53", "bw_use": 1.655, "user_id": -1, "id": 3, "port": 9000}, {"create_time": "2017-11-09 05:16:53", "bw_use": 0.145, "user_id": -1, "id": 15, "port": 9000}]}
 ```
+
+##### 图形界面管理
+为了方便单节点的管理，增加灵活性，为单节点设置了3个简单界面，完成基本管理，分别是主页、用户管理、流量报表，好用的很，都是ajax交互。
+![](index.png)
+![](user-manage.png)
+![](stat-manage.png)
